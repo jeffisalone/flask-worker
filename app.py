@@ -214,4 +214,4 @@ if __name__ == '__main__':
     print(f"[INFO] 健康检查端点: /test (GET)")
     
     # 启动 Flask 服务器，启用 CORS 和调试模式
-    app.run(host='0.0.0.0', port=443, ssl_context=('/root/www/cert.pem','/root/www/key.pem'))
+    app.run()
