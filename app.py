@@ -40,7 +40,9 @@ CORS(
 @app.route('/test')
 def test():
     return '200'
-
+@app.route('/')
+def all():
+    return 'Working'
 # @app.route('/success')
 # def success():
 #     user_info = session.get("user_info")
