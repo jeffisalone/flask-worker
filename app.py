@@ -4,6 +4,8 @@ from flask_cors import CORS
 from utils.jiami import encrypt,decrypt
 from cozepy import Coze, TokenAuth, Message, ChatEventType  # 导入 cozepy 库
 from cozepy import COZE_CN_BASE_URL
+import psycopg2
+connection_string = 'postgresql://neondb_owner:npg_zyTqEdGpVA50@ep-gentle-snow-a1fsrgqo-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 coze_api_token = 'pat_C3kKuLu6qD65lFYNdUbcPdpVglB7JCF30WNN8VDvW4ayEEaDNp6A1oOcU4ta0oTO'
 coze_api_base = COZE_CN_BASE_URL
 bot_id = '7569206391563993130'
@@ -168,9 +170,7 @@ def coze_stream():
 @app.route('/ciyun',methods=['GET','POST'])
 def ciyun():
     if request.method == 'GET':
-        import pymysql
-        conn = pymysql.connect(host='mysql2.sqlpub.com', port=3307, user='ak0nday', passwd='kqImiJJRu4r5v6Ko',
-                               db='shadow')
+        conn = psycopg2.connect(connection_string)
         cursor = conn.cursor()
         cursor.execute('select word,value from ciyun')
         data = []
@@ -180,7 +180,7 @@ def ciyun():
                 break
             data.append({'word': row[0], 'value': row[1]})
         cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM ciyun WHERE date < DATE_SUB(CURDATE(), INTERVAL 14 DAY);")
+        cursor.execute(f"DELETE FROM ciyun WHERE date < CURRENT_DATE - INTERVAL '14 days';")
         conn.commit()
         cursor.close()
         conn.close()
@@ -191,11 +191,9 @@ def ciyun():
         return jsonify({"error": "请求体中缺少 'word' 字段或字段值为空"}), 400
     from datetime import datetime
     current_date = datetime.now().strftime("%Y-%m-%d")
-    import pymysql
-    conn = pymysql.connect(host='mysql2.sqlpub.com', port=3307, user='ak0nday', passwd='kqImiJJRu4r5v6Ko',
-                           db='shadow')
+    conn = psycopg2.connect(connection_string)
     cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO ciyun VALUE('{word}',0,'{current_date}')")
+    cursor.execute(f"INSERT INTO ciyun VALUES('{word}',0,'{current_date}')")
     conn.commit()
     cursor.close()
     conn.close()
@@ -211,7 +209,7 @@ if __name__ == '__main__':
     print("[INFO] Flask 服务启动中...")
     print(f"[INFO] 服务地址: 0.0.0.0")
     print(f"[INFO] 服务域: workspace.jeffisalone.site")
-    print(f"[INFO] API端点: /coze (POST)")
+    print(f"[INFO] API端点: /coze (POST) || /ciyun (GET、POST)")
     print(f"[/coze ===> Origins] {originsOpenTo}")
     print(f"[INFO] 健康检查端点: /test (GET)")
     
