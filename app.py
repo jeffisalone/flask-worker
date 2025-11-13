@@ -170,7 +170,7 @@ def coze_stream():
 @app.route('/ciyun',methods=['GET','POST'])
 def ciyun():
     if request.method == 'GET':
-        conn = psycopg2.connect(connection_string)
+        conn = psycopg.connect(connection_string)
         cursor = conn.cursor()
         cursor.execute('select word,value from ciyun')
         data = []
@@ -191,7 +191,7 @@ def ciyun():
         return jsonify({"error": "请求体中缺少 'word' 字段或字段值为空"}), 400
     from datetime import datetime
     current_date = datetime.now().strftime("%Y-%m-%d")
-    conn = psycopg2.connect(connection_string)
+    conn = psycopg.connect(connection_string)
     cursor = conn.cursor()
     cursor.execute(f"INSERT INTO ciyun VALUES('{word}',0,'{current_date}')")
     conn.commit()
