@@ -4,7 +4,7 @@ from flask_cors import CORS
 from utils.jiami import encrypt,decrypt
 from cozepy import Coze, TokenAuth, Message, ChatEventType  # 导入 cozepy 库
 from cozepy import COZE_CN_BASE_URL
-import psycopg2
+import psycopg
 connection_string = 'postgresql://neondb_owner:npg_zyTqEdGpVA50@ep-gentle-snow-a1fsrgqo-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 coze_api_token = 'pat_C3kKuLu6qD65lFYNdUbcPdpVglB7JCF30WNN8VDvW4ayEEaDNp6A1oOcU4ta0oTO'
 coze_api_base = COZE_CN_BASE_URL
