@@ -34,6 +34,12 @@ CORS(
             "methods": ["GET", "POST", "OPTIONS"],  
             "allow_headers": ["Content-Type", "Authorization"], 
             "max_age": 86400
+        },
+        r"/lachang": {
+            "origins": "*",
+            "methods": ["GET", "POST", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "max_age": 86400
         }
         
     },
@@ -57,6 +63,7 @@ def connTCP():
     except:
         time.sleep(2)
         connTCP()
+    return '200'
 @app.route('/test')
 def test():
     return '200'
