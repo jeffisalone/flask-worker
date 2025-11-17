@@ -39,6 +39,24 @@ CORS(
     },
     intercept_exceptions=True  
 )
+@app.route('/lachang')
+def connTCP():
+    import socket
+    global tcp_client_socket
+    tcp_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_ip = 'bemfa.com'
+    server_port = 8344
+    try:
+        # 连接服务器
+        tcp_client_socket.connect((server_ip, server_port))
+        # 发送订阅指令
+        msg = 'wei5s'
+        substr = f'cmd=2&uid=dde516e455504e0c89c3270e6eaa42a0&topic=OUjYGUN5s006&msg={msg}\r\n'
+        tcp_client_socket.send(substr.encode("utf-8"))
+        print(f'已发送\n{substr}')
+    except:
+        time.sleep(2)
+        connTCP()
 @app.route('/test')
 def test():
     return '200'
