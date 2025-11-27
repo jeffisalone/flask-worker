@@ -40,7 +40,13 @@ CORS(
             "methods": ["GET", "POST", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "max_age": 86400
-        }
+        },
+        r"/shadowCheck": {
+            "origins": "*",  
+            "methods": ["POST", "OPTIONS"],  
+            "allow_headers": ["Content-Type", "Authorization"], 
+            "max_age": 86400
+        },
         
     },
     intercept_exceptions=True  
@@ -226,7 +232,22 @@ def ciyun():
 
 # 跨域中间件
 
-
+@app.route('/shadowCheck',methods=['POST'])
+def shadowCheck():
+    resp = request.get_json()
+    word = resp.get('word')
+    if not word:
+        return jsonify({"error": "请求体中缺少 'word' 字段或字段值为空"}), 400
+    conn = psycopg.connect(connection_string)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT value FROM ciyun WHERE word = '{word}';")
+    data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if data:
+        return jsonify({"value": data[0]}), 200
+    else:
+        return jsonify({"error": "未找到该单词"}), 404
 
 if __name__ == '__main__':
     # 确保所有必要的环境变量已设置
