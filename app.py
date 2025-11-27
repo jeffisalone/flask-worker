@@ -5,6 +5,7 @@ from utils.jiami import encrypt,decrypt
 from cozepy import Coze, TokenAuth, Message, ChatEventType  # 导入 cozepy 库
 from cozepy import COZE_CN_BASE_URL
 import psycopg
+import pymysql
 connection_string = 'postgresql://neondb_owner:npg_zyTqEdGpVA50@ep-gentle-snow-a1fsrgqo-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 coze_api_token = 'pat_C3kKuLu6qD65lFYNdUbcPdpVglB7JCF30WNN8VDvW4ayEEaDNp6A1oOcU4ta0oTO'
 coze_api_base = COZE_CN_BASE_URL
@@ -234,21 +235,52 @@ def ciyun():
 
 @app.route('/shadowCheck',methods=['POST'])
 def shadowCheck():
-    resp = request.get_json()
-    word = resp.get('word')
-    if not word:
-        return jsonify({"error": "请求体中缺少 'word' 字段或字段值为空"}), 400
-    conn = psycopg.connect(connection_string)
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT value FROM ciyun WHERE word = '{word}';")
-    data = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    if data:
-        return jsonify({"value": data[0]}), 200
-    else:
-        return jsonify({"error": "未找到该单词"}), 404
-
+    resp = request.get_json(force=True,silent=True)
+    print(resp)
+    if resp is None:
+        return jsonify({"value": "失败:无效的 JSON 格式"}), 400
+    
+    # 参数验证
+    orid = resp.get('orid')
+    if not orid:
+        return jsonify({"value": "失败:缺少必填参数 orid"}), 400
+    
+    phone = resp.get('phone')
+    channel = resp.get('channel')
+    serv = resp.get('serv')
+    game_id = resp.get('game_id')
+    
+    # 确保其他可能为非空的参数有默认值
+    phone = phone if phone else ''
+    channel = channel if channel else ''
+    serv = serv if serv else ''
+    game_id = game_id if game_id else ''
+    
+    try:
+        conn = pymysql.connect(host='mysql2.sqlpub.com', user='ak0nday', password='kqImiJJRu4r5v6Ko', database='shadow',port=3307)
+        cursor = conn.cursor()
+        sql = """
+                    INSERT INTO shadow_order (orid, phone, channel, serv, game_id)
+                    VALUES (%s, %s, %s, %s, %s)
+                """
+        cursor.execute(sql,(orid, phone, channel, serv, game_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"value": "订单提交成功"}), 200
+    except pymysql.err.IntegrityError as e:
+        if conn:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        return jsonify({"value": f"失败:数据库完整性错误 - {str(e)}"}), 400
+    except Exception as e:
+        if conn:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        return jsonify({"value": f"失败:服务器内部错误 - {str(e)}"}), 500
+        
 if __name__ == '__main__':
     # 确保所有必要的环境变量已设置
     
