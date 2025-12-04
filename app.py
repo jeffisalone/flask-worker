@@ -249,7 +249,7 @@ def shadowCheck():
     channel = resp.get('channel')
     serv = resp.get('serv')
     game_id = resp.get('game_id')
-    
+    bz = resp.get('bz')
     # 确保其他可能为非空的参数有默认值
     phone = phone if phone else ''
     channel = channel if channel else ''
@@ -260,10 +260,10 @@ def shadowCheck():
         conn = pymysql.connect(host='mysql2.sqlpub.com', user='ak0nday', password='kqImiJJRu4r5v6Ko', database='shadow',port=3307)
         cursor = conn.cursor()
         sql = """
-                    INSERT INTO shadow_order (orid, phone, channel, serv, game_id)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO shadow_order (orid, phone, channel, serv, game_id, bz)
+                    VALUES (%s, %s, %s, %s, %s, &s)
                 """
-        cursor.execute(sql,(orid, phone, channel, serv, game_id))
+        cursor.execute(sql,(orid, phone, channel, serv, game_id,bz))
         conn.commit()
         cursor.close()
         conn.close()
