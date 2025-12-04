@@ -261,9 +261,9 @@ def shadowCheck():
         cursor = conn.cursor()
         sql = """
                     INSERT INTO shadow_order (orid, phone, channel, serv, game_id, bz)
-                    VALUES (%s, %s, %s, %s, %s, &s)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """
-        cursor.execute(sql,(orid, phone, channel, serv, game_id,bz))
+        cursor.execute(sql,(orid, phone, channel, serv, game_id, bz))
         conn.commit()
         cursor.close()
         conn.close()
